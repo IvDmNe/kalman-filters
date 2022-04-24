@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils import make_discrete_matrix
+from models.utils import make_discrete_matrix
 
 
 class Plant:
