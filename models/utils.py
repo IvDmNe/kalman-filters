@@ -11,7 +11,15 @@ def make_discrete_matrix(matrix, dt, iterations=4):
     return res
 
 
-def covariance(A, B, coeffs):
+def covariance(A, B=None, coeffs=None):
+
+    if coeffs is None:
+        coeffs = np.ones(len(A), dtype=np.float32) / len(A)
+    if B is None:
+        B = A.copy()
+
+    A = A[..., np.newaxis] if len(A.shape) == 1 else A
+    B = B[..., np.newaxis] if len(B.shape) == 1 else B
     A_mean = np.sum(np.multiply(A, coeffs[:, np.newaxis]), axis=0)
     B_mean = np.sum(np.multiply(B, coeffs[:, np.newaxis]), axis=0)
 

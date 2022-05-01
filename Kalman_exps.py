@@ -8,22 +8,24 @@ from models import DSSM, KalmanFilter, UnscentedKalmanFilter
 
 if __name__ == '__main__':
 
-    state_f = lambda x, u, dt: jnp.array([[1, dt], [0, 1]], dtype=np.float32) @ x + jnp.array([[0], [dt]], dtype=np.float32) * u
+    state_f = lambda x, u, dt: jnp.array([[1, dt], [0, 1]], dtype=np.float32) @ x \
+                                + jnp.array([[0], [dt]], dtype=np.float32) @ u
+    # out_f = lambda x: jnp.sqrt(jnp.abs(jnp.sin(0.1 * x[0])))
+    # out_f = lambda x: jnp.sin(x[0])
+    out_f = lambda x: 2 * x[0]
 
-    out_f = lambda x: jnp.sqrt(jnp.abs(jnp.sin(0.1 * x[0])))
 
 
+    model_noise_mean, model_noise_cov = 0, 0.0
+    obs_noise_mean, obs_noise_cov = 0.00, 0.0
 
-    model_noise_mean, model_noise_cov = 0, 0.1
-    obs_noise_mean, obs_noise_cov = 0.01, 0.4
-
-    plant = DSSM(state_f, out_f, jnp.array([[0], [5]]), 
+    plant = DSSM(state_f, out_f, jnp.array([[0], [0.]]), 
                 model_noise_f=lambda : np.random.normal(model_noise_mean, model_noise_cov),
                 obs_noise_f=lambda : np.random.normal(obs_noise_mean, obs_noise_cov))
 
 
-    init_state_mean=np.array([[0.], [5.]])
-    init_state_cov = np.array([[0.01, 0.], [0., 1.]])
+    init_state_mean=np.array([[0.], [0.]])
+    init_state_cov = np.array([[0.1, 0.], [0., 0.1]])
     observer = UnscentedKalmanFilter(state_f,
     # observer = KalmanFilter(state_f,
                     out_f,
@@ -39,7 +41,9 @@ if __name__ == '__main__':
     a = np.linspace(0, time_limit, int(time_limit / dt), endpoint=True)
     # a = np.arange(0, 1000)
 
-    us = -np.sin(0.01*a)
+    # us = -np.sin(0.01*a)
+    us = np.ones_like(a)
+    us = us[..., np.newaxis, np.newaxis]
     gt_states = []
     obs_states = []
     outs = []
@@ -53,16 +57,18 @@ if __name__ == '__main__':
 
         out = plant.step(u, dt)
 
+        print(plant.state)
         state_obs = observer.step(u, out, dt)
         outs.append(out)
         gt_states.append(plant.state)
         obs_states.append(state_obs)
 
 
-    gt_states = jnp.array(gt_states)
-    obs_states = jnp.array(obs_states)
+    gt_states = jnp.array(gt_states).squeeze()
+    obs_states = jnp.array(obs_states).squeeze()
+
     fig, axs = plt.subplots(nrows=1, ncols=6, figsize=(17.8, 7.2))
-    axs[0].plot(a, us, color='red')
+    axs[0].plot(a, np.squeeze(us), color='red')
     axs[0].grid()
     axs[0].title.set_text('Inputs')
     axs[1].plot(a, gt_states[:, 1], color='blue')
