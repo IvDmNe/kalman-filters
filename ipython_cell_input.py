@@ -1,0 +1,1 @@
+A.shape, B.shape

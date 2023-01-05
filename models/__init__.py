@@ -1,2 +1,2 @@
-from models.StateSpace import LDSSM, DSSM
-from models.Kalman import KalmanFilter, UnscentedKalmanFilter
+from models.StateSpace import DiscreteModel, LinearDiscreteModel
+from models.Kalman import ExtendedKalmanFilter, UnscentedKalmanFilter

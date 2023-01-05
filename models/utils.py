@@ -29,3 +29,6 @@ def covariance(A, B=None, coeffs=None):
         cov += weight * (a - A_mean)[:, np.newaxis] @ ((b - B_mean)[:, np.newaxis]).T
         
     return cov
+
+def vector2matrix(x: np.ndarray):
+    return x if len(x.shape) > 1 else x[:, np.newaxis]
