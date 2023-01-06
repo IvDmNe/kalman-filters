@@ -1,7 +1,7 @@
 # Kalman filters
 
 [![Linter](https://github.com/IvDmNe/kalman-filters/actions/workflows/pylint.yml/badge.svg)](https://github.com/IvDmNe/kalman-filters/actions/workflows/pylint.yml)
-[![Tests](https://github.com/IvDmNe/kalman-filters/actions/workflows/python-package.yml/badge.svg)](https://github.com/IvDmNe/kalman-filters/actions/workflows/python-package.yml)
+[![Tests](https://github.com/IvDmNe/kalman-filters/actions/workflows/tests.yml/badge.svg)](https://github.com/IvDmNe/kalman-filters/actions/workflows/tests.yml)
 
 This repository contains:
  - discrete state space model;
