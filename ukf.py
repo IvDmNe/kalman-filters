@@ -1,10 +1,9 @@
 from tqdm.auto import tqdm
-from models.Kalman import UnscentedKalmanFilter
 import numpy as np
 import jax.numpy as jnp
 from jax import jit
 
-from models import DiscreteModel
+from models import UnscentedKalmanFilter, DiscreteModel
 
 
 if __name__ == '__main__':

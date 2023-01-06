@@ -1,7 +1,10 @@
 from math import factorial
-
+from typing import Union
 import numpy as np
 from numpy.linalg import matrix_power as mpower
+import jax.numpy as jnp
+
+ndarray = Union[jnp.ndarray, np.ndarray]
 
 
 def make_discrete_matrix(matrix, dt, iterations=4):

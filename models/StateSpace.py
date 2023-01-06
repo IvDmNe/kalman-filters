@@ -4,9 +4,7 @@ from typing import Callable, Union
 import numpy as np
 import jax.numpy as jnp
 
-from models.utils import make_discrete_matrix, vector2matrix
-
-ndarray = Union[jnp.ndarray, np.ndarray]
+from models.common import make_discrete_matrix, vector2matrix, ndarray
 
 
 class DiscreteModel:
@@ -36,7 +34,7 @@ class DiscreteModel:
              dt: Union[int, float] = 0):
 
         if u is None:
-            u = jnp.zeros_like(self.init_state)
+            u = jnp.zeros_like(self.state)
 
         u = vector2matrix(u)
 

@@ -9,7 +9,7 @@ from jax import vmap
 
 from scipy.linalg import cholesky
 
-from models.utils import vector2matrix
+from models.common import vector2matrix, ndarray
 
 
 class ExtendedKalmanFilter:
@@ -26,13 +26,13 @@ class ExtendedKalmanFilter:
         self.model_state_function = model_state_function
         self.obs_function = obs_function
 
-        if isinstance(model_noise_cov, np.ndarray):
+        if isinstance(model_noise_cov, ndarray):
             self.model_noise_cov = model_noise_cov
         else:
             self.model_noise_cov = np.eye(
                 len(init_state_mean)) * model_noise_cov
 
-        if isinstance(obs_noise_cov, np.ndarray):
+        if isinstance(obs_noise_cov, ndarray):
             self.obs_noise_cov = obs_noise_cov
         else:
             self.obs_noise_cov = np.eye(1) * obs_noise_cov
@@ -94,7 +94,7 @@ class ExtendedKalmanFilter:
 
 
 @jit
-def joint_cov(x, y, weights):
+def joint_cov(x: ndarray, y:ndarray, weights):
     x_mean = jnp.average(x, axis=0, weights=weights)
     y_mean = jnp.average(y, axis=0, weights=weights)
     cov = jnp.stack([w * (x_obs - x_mean) @ (y_obs -
