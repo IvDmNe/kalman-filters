@@ -67,7 +67,7 @@ class ExtendedKalmanFilter:
         cur_input = vector2matrix(cur_input)
 
         # calculate Prediction
-        A, B = self.model_jacobian(
+        A, _ = self.model_jacobian(
             self.pred_state[..., 0], cur_input[..., 0], dt)
 
         self.pred_state = self.model_state_function(
@@ -94,7 +94,7 @@ class ExtendedKalmanFilter:
 
 
 @jit
-def joint_cov(x: ndarray, y:ndarray, weights):
+def joint_cov(x: ndarray, y: ndarray, weights):
     x_mean = jnp.average(x, axis=0, weights=weights)
     y_mean = jnp.average(y, axis=0, weights=weights)
     cov = jnp.stack([w * (x_obs - x_mean) @ (y_obs -
@@ -152,9 +152,9 @@ class UnscentedKalmanFilter:
         self.sigma_weights = jnp.array(self.sigma_weights)
 
     def step(self,
-             cur_input: Union[np.ndarray, jnp.ndarray],
-             cur_obs: Union[np.ndarray, jnp.ndarray],
-             dt: Union[int, float]) -> Union[jnp.ndarray, np.ndarray]:
+             cur_input: ndarray,
+             cur_obs: ndarray,
+             dt: Union[int, float]) -> ndarray:
 
         cur_input = vector2matrix(cur_input)
 
@@ -189,5 +189,5 @@ class UnscentedKalmanFilter:
 
         return self.pred_state
 
-    def get_history(self) -> np.ndarray:
+    def get_history(self) -> ndarray:
         return np.stack(self.history)
