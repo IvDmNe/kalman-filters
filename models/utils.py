@@ -23,12 +23,13 @@ def covariance(A, B=None, coeffs=None):
     A_mean = np.sum(np.multiply(A, coeffs[:, np.newaxis]), axis=0)
     B_mean = np.sum(np.multiply(B, coeffs[:, np.newaxis]), axis=0)
 
-
     cov = np.zeros((A.shape[1], B.shape[1]))
     for a, b, weight in zip(A, B, coeffs):
-        cov += weight * (a - A_mean)[:, np.newaxis] @ ((b - B_mean)[:, np.newaxis]).T
-        
+        cov += weight * \
+            (a - A_mean)[:, np.newaxis] @ ((b - B_mean)[:, np.newaxis]).T
+
     return cov
+
 
 def vector2matrix(x: np.ndarray):
     return x if len(x.shape) > 1 else x[:, np.newaxis]
