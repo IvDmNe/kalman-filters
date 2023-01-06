@@ -1,3 +1,6 @@
+import sys
+sys.path.append(sys.path[0] + '/..')
+
 import numpy as np
 import jax.numpy as jnp
 
@@ -62,5 +65,5 @@ class TestClass:
         ys = [0]
 
         for _ in (a[1:]):
-            y = model.step(dt=dt)
+            y = model.step(time_delta=dt)
             ys.append(y)

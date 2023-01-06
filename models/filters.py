@@ -9,11 +9,11 @@ from jax import vmap
 
 from scipy.linalg import cholesky
 
-from models.common import vector2matrix, ndarray
+from models.common import vector2matrix, Ndarray
 
 
 @jit
-def calc_K(pred_cov: ndarray, H: ndarray, obs_noise_cov: ndarray):
+def calc_coefficient(pred_cov: Ndarray, H: Ndarray, obs_noise_cov: Ndarray):
     return pred_cov @ H.T @ inv(H @ pred_cov @ H.T + obs_noise_cov)
 
 
@@ -26,10 +26,10 @@ class ExtendedKalmanFilter:
     def __init__(self,
                  model_state_function: Callable,
                  obs_function: Callable,
-                 model_noise_cov: ndarray,
-                 obs_noise_cov: ndarray,
-                 init_state_mean: ndarray,
-                 init_state_cov: ndarray,
+                 model_noise_cov: Ndarray,
+                 obs_noise_cov: Ndarray,
+                 init_state_mean: Ndarray,
+                 init_state_cov: Ndarray,
                  save_history=True,
                  jit_enable=True) -> None:
 
@@ -60,22 +60,22 @@ class ExtendedKalmanFilter:
     def step(self,
              cur_input: Union[np.ndarray, jnp.ndarray],
              cur_obs: Union[np.ndarray, jnp.ndarray],
-             dt: Union[int, float]) -> Union[jnp.ndarray, np.ndarray]:
+             time_delta: Union[int, float]) -> Union[jnp.ndarray, np.ndarray]:
 
         cur_input = vector2matrix(cur_input)
 
         # calculate prediction
         A = self.model_jacobian(
-            self.pred_state[..., 0], cur_input[..., 0], dt)
+            self.pred_state[..., 0], cur_input[..., 0], time_delta)
 
         self.pred_state = self.model_state_function(
-            self.pred_state, cur_input, dt)
+            self.pred_state, cur_input, time_delta)
         self.pred_cov = calc_obs_noise(
             A, self.pred_cov, self.model_noise_cov)
 
         # Calculate coefficient
         H = self.obs_jacobian(self.pred_state[..., 0])
-        K = calc_K(self.pred_cov, H, self.obs_noise_cov)
+        K = calc_coefficient(self.pred_cov, H, self.obs_noise_cov)
 
         # Calculate correction for state and Covariance
         self.pred_state = self.pred_state + \
@@ -93,7 +93,7 @@ class ExtendedKalmanFilter:
 
 
 @jit
-def joint_cov(x: ndarray, y: ndarray, weights):
+def cross_cov(x: Ndarray, y: Ndarray, weights):
     x_mean = jnp.average(x, axis=0, weights=weights)
     y_mean = jnp.average(y, axis=0, weights=weights)
     cov = jnp.stack([w * (x_obs - x_mean) @ (y_obs -
@@ -151,9 +151,9 @@ class UnscentedKalmanFilter:
         self.sigma_weights = jnp.array(self.sigma_weights)
 
     def step(self,
-             cur_input: ndarray,
-             cur_obs: ndarray,
-             dt: Union[int, float]) -> ndarray:
+             cur_input: Ndarray,
+             cur_obs: Ndarray,
+             time_delta: Union[int, float]) -> Ndarray:
 
         cur_input = vector2matrix(cur_input)
 
@@ -166,18 +166,18 @@ class UnscentedKalmanFilter:
         sigma_points = jnp.stack(sigma_points)
 
         responses = self.vector_model_state_function(
-            sigma_points, cur_input, dt)
+            sigma_points, cur_input, time_delta)
         responses_avg = jnp.average(
             responses, axis=0, weights=self.sigma_weights)
-        responses_cov = joint_cov(
+        responses_cov = cross_cov(
             responses, responses, weights=self.sigma_weights) + self.model_noise_cov
 
         outputs = self.vector_obs_function(responses)
         outputs_avg = jnp.average(outputs, axis=0, weights=self.sigma_weights)
-        outputs_cov = joint_cov(
+        outputs_cov = cross_cov(
             outputs, outputs, weights=self.sigma_weights) + self.obs_noise_cov
 
-        cov_xy = joint_cov(responses, outputs, self.sigma_weights)
+        cov_xy = cross_cov(responses, outputs, self.sigma_weights)
 
         K = cov_xy @ inv(outputs_cov)
         self.pred_state = responses_avg + K @ (cur_obs - outputs_avg)
@@ -188,5 +188,5 @@ class UnscentedKalmanFilter:
 
         return self.pred_state
 
-    def get_history(self) -> ndarray:
+    def get_history(self) -> Ndarray:
         return np.stack(self.history)

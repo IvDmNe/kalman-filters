@@ -1,7 +1,10 @@
+import sys
+sys.path.append(sys.path[0] + '/..')
+
 import jax.numpy as jnp
 from jax import jit
 import numpy as np
-
+print(sys.path)
 from models import DiscreteModel, ExtendedKalmanFilter, UnscentedKalmanFilter
 
 
