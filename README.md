@@ -1,5 +1,7 @@
 # Kalman filters
 
+[![Pylint](https://github.com/IvDmNe/kalman-filters/actions/workflows/pylint.yml/badge.svg)](https://github.com/IvDmNe/kalman-filters/actions/workflows/pylint.yml)
+
 This repository contains:
  - discrete state space model;
  - linear discrete state space model;
