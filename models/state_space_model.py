@@ -11,23 +11,23 @@ class DiscreteModel:
     # Discrete State Space Model
     def __init__(self,
                  state_f: Callable,
-                 out_f: Callable,
+                 observation_f: Callable,
                  init_state: ndarray,
                  model_noise_f: Callable = lambda: 0.0,
                  obs_noise_f: Callable = lambda: 0.0,
                  save_history: bool = False):
 
         self.state_f = state_f
-        self.out_f = out_f
+        self.observation_f = observation_f
 
-        self.state = init_state
+        self.state = vector2matrix(init_state)
         self.model_noise_f = model_noise_f
         self.obs_noise_f = obs_noise_f
 
         self.save_history = save_history
         self.history = []
         if self.save_history:
-            self.history.append(init_state)
+            self.history.append(self.state)
 
     def step(self,
              u: ndarray = None,
@@ -39,13 +39,16 @@ class DiscreteModel:
         u = vector2matrix(u)
 
         self.state = self.state_f(self.state, u, dt) + self.model_noise_f()
-        out = self.out_f(self.state) + self.obs_noise_f()
+        out = self.observation_f(self.state) + self.obs_noise_f()
         if self.save_history:
             self.history.append(self.state)
         return out
 
-    def get_history(self):
-        return np.stack(self.history)
+    def get_history(self, squeeze: bool = True):
+        if not self.save_history:
+            raise RuntimeError('History is not saved')
+
+        return np.stack(self.history)[..., 0] if squeeze else np.stack(self.history)
 
 
 class LinearDiscreteModel(DiscreteModel):

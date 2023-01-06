@@ -20,4 +20,4 @@ jobs:
         pip install pylint jax[cpu] matplotlib tqdm scipy 
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files 'models/*.py')
+        pylint $(git ls-files 'models/*.py') --max-args 20 --max-attributes 20 --disable C0103,C0114,C0115,C0116

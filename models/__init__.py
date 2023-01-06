@@ -1,2 +1,2 @@
-from models.StateSpace import DiscreteModel, LinearDiscreteModel
+from models.state_space_model import DiscreteModel, LinearDiscreteModel
 from models.filters import ExtendedKalmanFilter, UnscentedKalmanFilter
